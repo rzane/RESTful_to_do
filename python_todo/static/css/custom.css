@@ -1,0 +1,14 @@
+textarea {
+  resize: none;
+}
+
+
+.agenda {
+  background-color: purple;
+  display: block;
+  height: 400px;
+}
+
+#task_name {
+    display: block;
+}
