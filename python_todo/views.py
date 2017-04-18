@@ -22,7 +22,6 @@ def create_task():
     new_task = Task(name)
     db.session.add(new_task)
     db.session.commit()
-
     return all_tasks()
 
 @app.route('/task/', methods=['DELETE'])
