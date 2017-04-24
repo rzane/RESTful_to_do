@@ -1,14 +1,25 @@
 textarea {
   resize: none;
+  height: 50px;
+  width: 250px;
 }
 
 
-.agenda {
+#root {
   background-color: purple;
   display: block;
   height: 400px;
 }
 
-#task_name {
+#task-name {
     display: block;
+    width: 250px;
+}
+
+.task {
+  color: white;
+}
+
+.list {
+  background-color: blue;
 }
