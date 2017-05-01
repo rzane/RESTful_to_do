@@ -1,9 +1,5 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
-var axios = require('axios')
-
-
-console.log('you are successfully using react');
 
 class TaskList extends React.Component {
     constructor() {
@@ -11,7 +7,7 @@ class TaskList extends React.Component {
 
       this.state = {
         tasks: null,
-        color: 'blue'
+        childVisible: false
       };
     }
 
@@ -30,23 +26,30 @@ class TaskList extends React.Component {
     addTask(event) {
       event.preventDefault();
       let name = this.refs.name.value;
+      if (name == '') {
+        alert('you must write something')
+      } else {
 
-      fetch('/task/', {
-        method: 'POST',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          name: name
+        fetch('/task/', {
+          method: 'POST',
+          headers: {
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            name: name
+          })
         })
-      })
-      this.refs.name.value = '';
-      this.componentDidMount();
-    }
+        this.refs.name.value = '';
+        this.setState({
+        childVisible: false
+        });
+        this.componentDidMount();
+      }
+
+      }
 
     removeTask(event) {
-      console.log(event);
       fetch('/task/', {
         method: 'DELETE',
         headers: {
@@ -60,28 +63,46 @@ class TaskList extends React.Component {
       this.componentDidMount();
     }
 
+    onChange() {
+      var counter = document.getElementById('task-name-form').value
+      if (counter.length > 0 ) {
+        this.setState({
+        childVisible: true
+        });
+      } else {
+          this.setState({
+          childVisible: false
+          });
+        }
+    }
+
     renderTaskList() {
         if (this.state.tasks) {
           return (
-            <div>
-              <div className = 'wrapper' >
-                <form action = "" onSubmit = {this.addTask.bind(this)} >
-                  <input type = 'text' ref = "name" name = 'task' id = 'task-name' placeholder = "Task" / > < br / >
-                  <textarea type = 'text' ref = 'description' placeholder = 'Description' / > < br / >
-                  <input type = 'submit' id = 'task-submit' name = 'submit' value = 'Submit' /> < br / >
-                </form>
-                <ul className = 'list' > {this.state.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onClick={this.removeTask.bind(this, task.id)} /> )} </ul>
+              <div className='wrapper'>
+                <div className='completed-tab'>
+
+                </div>
+                <div className='wrapper-form'>
+                  <form action="" onSubmit={this.addTask.bind(this)} >
+                    <input type='text' ref ="name" name='task' id='task-name-form' placeholder="Task" onChange={this.onChange.bind(this)} className='form-control' autoComplete="off"  / > <br/>
+                    {this.state.childVisible ? <Task_description />: null}
+                  </form>
+                </div>
+                <div className='wrapper-list'>
+                  <ul className='list' > {this.state.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onClick={this.removeTask.bind(this, task.id)} /> )} </ul>
+                </div>
+
               </div>
-            </div>
           )
         }
-        return <p className = 'list' > Loading tasks... < /p>
+        return <p className='loading' > Loading tasks... </p>
       }
 
           render() {
             return (
               <div >
-              <h1 > Tasks < /h1> {
+              {
                 this.renderTaskList()
               }
               </div>
@@ -89,13 +110,32 @@ class TaskList extends React.Component {
           }
 }
 
-
 class Task extends React.Component {
 
   render() {
-    return <li className = 'task'><div><p> {this.props.task}</p><button className='remove' onClick={this.props.onClick} /></div>< /li>
+    return (
+      <div>
+        <li className='task'>
+          <ul className='nested-task-list'>
+            <li className='nested-task-list-name'><p className='task-list-name'> {this.props.task}</p></li>
+            <li className='nested-task-list-complete'><span className='complete'><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
+            <li className='nested-task-list-button'><span className='remove' onClick={this.props.onClick}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
+          </ul>
+        </li>
+      </div>
+    )
   }
 }
 
 
-ReactDOM.render( < TaskList / > , document.getElementById('root'));
+class Task_description extends React.Component {
+  render() {
+    return <textarea id='task-description-form' className='form-control' type='text' ref='description' placeholder='Description' / >
+  }
+}
+
+class Completed extends React.Component {
+
+}
+
+ReactDOM.render( <TaskList / > , document.getElementById('root'));
