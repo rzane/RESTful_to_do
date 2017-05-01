@@ -30,3 +30,17 @@ def delete_task():
     db.session.delete(data)
     db.session.commit()
     return all_tasks()
+
+@app.route('/task/', methods=['PUT'])
+def complete_task():
+
+    data = Task.query.get_or_404(request.get_json().get('id'))
+    print data
+    if data.completed == 0:
+        data.completed += 1
+        db.session.commit()
+    elif data.completed == 1:
+        data.completed -= 1
+        db.session.commit()
+
+    return jsonify(data.to_dict())

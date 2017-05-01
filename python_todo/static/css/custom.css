@@ -8,6 +8,7 @@ body {
   margin-top: 50px;
 }
 
+
 .wrapper-form {
   background-color: #f2f2f2;
   margin: 0 auto;
@@ -23,8 +24,8 @@ body {
   position: relative;
 }
 
-.completed-tab {
-  background-color: #cccccc;
+.completed {
+  background-color: #e6e6e6;
   width: 87%;
   height: 175px;
   margin-bottom: -150px;
@@ -34,7 +35,19 @@ body {
   border-radius: 0 2px 25px 0;
 }
 
-.completed-tab:hover {
+.completed-shown {
+  background-color: #e6e6e6;
+  width: 87%;
+  height: 175px;
+  margin-bottom: -150px;
+  margin-top: 1%;
+  float: right;
+  margin-right: 5.6%;
+  border-radius: 0 2px 25px 0;
+  position: absolute;
+}
+
+.completed:hover {
   margin-right: 4%;
 }
 

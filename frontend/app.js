@@ -7,7 +7,8 @@ class TaskList extends React.Component {
 
       this.state = {
         tasks: null,
-        childVisible: false
+        childVisible: false,
+        showCompleted: false
       };
     }
 
@@ -63,6 +64,21 @@ class TaskList extends React.Component {
       this.componentDidMount();
     }
 
+    completeTask(event) {
+      fetch('/task/', {
+        method: 'PUT',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          id: event
+        })
+      })
+      this.componentDidMount();
+    }
+
+
     onChange() {
       var counter = document.getElementById('task-name-form').value
       if (counter.length > 0 ) {
@@ -76,13 +92,19 @@ class TaskList extends React.Component {
         }
     }
 
+    showCompleted() {
+      this.setState({ showCompleted: !this.state.showCompleted });
+    }
+
+
     renderTaskList() {
         if (this.state.tasks) {
           return (
               <div className='wrapper'>
-                <div className='completed-tab'>
+                <div className={this.state.showCompleted ? "completed" : "completed-shown"} onClick={this.showCompleted.bind(this)}>
 
                 </div>
+
                 <div className='wrapper-form'>
                   <form action="" onSubmit={this.addTask.bind(this)} >
                     <input type='text' ref ="name" name='task' id='task-name-form' placeholder="Task" onChange={this.onChange.bind(this)} className='form-control' autoComplete="off"  / > <br/>
@@ -90,7 +112,7 @@ class TaskList extends React.Component {
                   </form>
                 </div>
                 <div className='wrapper-list'>
-                  <ul className='list' > {this.state.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onClick={this.removeTask.bind(this, task.id)} /> )} </ul>
+                  <ul className='list' > {this.state.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteClick={this.completeTask.bind(this, task.id)} onDeleteClick={this.removeTask.bind(this, task.id)} /> )} </ul>
                 </div>
 
               </div>
@@ -118,8 +140,8 @@ class Task extends React.Component {
         <li className='task'>
           <ul className='nested-task-list'>
             <li className='nested-task-list-name'><p className='task-list-name'> {this.props.task}</p></li>
-            <li className='nested-task-list-complete'><span className='complete'><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
-            <li className='nested-task-list-button'><span className='remove' onClick={this.props.onClick}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
+            <li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteClick}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
+            <li className='nested-task-list-button'><span className='remove' onClick={this.props.onDeleteClick}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
           </ul>
         </li>
       </div>
@@ -135,7 +157,13 @@ class Task_description extends React.Component {
 }
 
 class Completed extends React.Component {
-
+  render() {
+    return (
+      <div className='completed'>
+        <p> yo </p>
+      </div>
+    )
+  }
 }
 
 ReactDOM.render( <TaskList / > , document.getElementById('root'));
