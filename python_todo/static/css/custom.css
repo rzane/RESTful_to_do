@@ -2,7 +2,7 @@ body {
   font-family: 'Muli', sans-serif;
 }
 
-.wrapper {
+.task-wrapper {
   width: 90%;
   margin: 0 auto;
   margin-top: 50px;
@@ -33,18 +33,6 @@ body {
   float: right;
   margin-right: 5.6%;
   border-radius: 0 2px 25px 0;
-}
-
-.completed-shown {
-  background-color: #e6e6e6;
-  width: 87%;
-  height: 175px;
-  margin-bottom: -150px;
-  margin-top: 1%;
-  float: right;
-  margin-right: 5.6%;
-  border-radius: 0 2px 25px 0;
-  position: absolute;
 }
 
 .completed:hover {

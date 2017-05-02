@@ -1,135 +1,141 @@
 var React = require('react');
 var ReactDOM = require('react-dom');
 
-class TaskList extends React.Component {
-    constructor() {
-      super()
+class Root extends React.Component {
+  constructor() {
+    super()
 
-      this.state = {
-        tasks: null,
-        childVisible: false,
-        showCompleted: false
-      };
-    }
+    this.state = {
+      tasks: null,
+      value: '',
+      childVisible: false
+    };
+  }
 
-    componentDidMount() {
-      fetch('/task')
-        .then((data) => {
+  componentDidMount() {
+    fetch('/task')
+      .then((data) => {
+        return data.json()
+      })
+      .then((json) => {
+        this.setState({
+          tasks: json.tasks
+        })
+      })
+  }
+
+  addTask(event) {
+    event.preventDefault();
+    var name = this.state.value
+    console.log(name)
+    if (name == '') {
+      alert('you must write something')
+    } else {
+
+      fetch('/task/', {
+        method: 'POST',
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          name: name
+        })
+      }).then((data) => {
           return data.json()
         })
         .then((json) => {
           this.setState({
-            tasks: json.tasks
+            childVisible: false,
+            tasks: json.tasks,
+
           })
-        })
-    }
 
-    addTask(event) {
-      event.preventDefault();
-      let name = this.refs.name.value;
-      if (name == '') {
-        alert('you must write something')
-      } else {
-
-        fetch('/task/', {
-          method: 'POST',
-          headers: {
-            'Accept': 'application/json',
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            name: name
-          })
-        })
-        this.refs.name.value = '';
-        this.setState({
-        childVisible: false
-        });
-        this.componentDidMount();
-      }
-
-      }
-
-    removeTask(event) {
-      fetch('/task/', {
-        method: 'DELETE',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: event
-        })
       })
-      this.componentDidMount();
     }
+  }
 
-    completeTask(event) {
-      fetch('/task/', {
-        method: 'PUT',
-        headers: {
-          'Accept': 'application/json',
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          id: event
-        })
+  removeTask(event) {
+    fetch('/task/', {
+      method: 'DELETE',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: event
       })
-      this.componentDidMount();
+    })
+    this.componentDidMount();
+  }
+
+  completeTask(event) {
+    fetch('/task/', {
+      method: 'PUT',
+      headers: {
+        'Accept': 'application/json',
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        id: event
+      })
+    })
+    this.componentDidMount();
+  }
+
+  onChange(event) {
+    console.log(this.state.value)
+    var counter = document.getElementById('task-name-form').value
+    if (counter.length > 0 ) {
+      this.setState({
+        childVisible: true,
+        value: event.target.value
+      });
+    } else {
+      this.setState({
+        childVisible: false,
+        value: event.target.value
+      });
     }
+  }
 
+    render() {
+      if (this.state.tasks) {
+        return (
+          <div className='root-wrapper'>
+            <TaskList
+              tasks={this.state.tasks}
+              onCompleteTask={this.completeTask.bind(this)}
+              onDeleteTask={this.removeTask.bind(this)}
+              addTask={this.addTask.bind(this)}
+              onChange={this.onChange.bind(this)}
+              childVisible={this.state.childVisible}
+              value={this.state.value}
+            />
 
-    onChange() {
-      var counter = document.getElementById('task-name-form').value
-      if (counter.length > 0 ) {
-        this.setState({
-        childVisible: true
-        });
-      } else {
-          this.setState({
-          childVisible: false
-          });
-        }
-    }
-
-    showCompleted() {
-      this.setState({ showCompleted: !this.state.showCompleted });
-    }
-
-
-    renderTaskList() {
-        if (this.state.tasks) {
-          return (
-              <div className='wrapper'>
-                <div className={this.state.showCompleted ? "completed" : "completed-shown"} onClick={this.showCompleted.bind(this)}>
-
-                </div>
-
-                <div className='wrapper-form'>
-                  <form action="" onSubmit={this.addTask.bind(this)} >
-                    <input type='text' ref ="name" name='task' id='task-name-form' placeholder="Task" onChange={this.onChange.bind(this)} className='form-control' autoComplete="off"  / > <br/>
-                    {this.state.childVisible ? <Task_description />: null}
-                  </form>
-                </div>
-                <div className='wrapper-list'>
-                  <ul className='list' > {this.state.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteClick={this.completeTask.bind(this, task.id)} onDeleteClick={this.removeTask.bind(this, task.id)} /> )} </ul>
-                </div>
-
-              </div>
-          )
-        }
-        return <p className='loading' > Loading tasks... </p>
+          </div>
+        )
       }
+      return <p className='loading' > Loading tasks... </p>
+    }
 
-          render() {
-            return (
-              <div >
-              {
-                this.renderTaskList()
-              }
-              </div>
-            );
-          }
+}
+class TaskList extends React.Component {
+
+  render() {
+    return (
+        <div className='task-wrapper'>
+          <div className='wrapper-form'>
+            <Task_form onSubmit={this.props.addTask} onChange={this.props.onChange} childVisible={this.props.childVisible} />
+          </div>
+          <div className='wrapper-list'>
+            <ul className='list' > {this.props.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id}  /> )} </ul>
+          </div>
+
+        </div>
+    )
+  }
+
 }
 
 class Task extends React.Component {
@@ -140,8 +146,8 @@ class Task extends React.Component {
         <li className='task'>
           <ul className='nested-task-list'>
             <li className='nested-task-list-name'><p className='task-list-name'> {this.props.task}</p></li>
-            <li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteClick}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
-            <li className='nested-task-list-button'><span className='remove' onClick={this.props.onDeleteClick}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
+            <li className='nested-task-list-complete'><span className='complete' onClick={this.props.completeTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
+            <li className='nested-task-list-button'><span className='remove' onClick={this.props.removeTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
           </ul>
         </li>
       </div>
@@ -149,10 +155,22 @@ class Task extends React.Component {
   }
 }
 
+class Task_form extends React.Component {
+
+  render() {
+    return (
+      <form action="" onSubmit={this.props.onSubmit} >
+        <input type='text' value={this.props.value} name='task' id='task-name-form' placeholder="Task" onChange={this.props.onChange} className='form-control' autoComplete="off"  / > <br/>
+        {this.props.childVisible ? <Task_description />: null}
+      </form>
+    )
+  }
+}
+
 
 class Task_description extends React.Component {
   render() {
-    return <textarea id='task-description-form' className='form-control' type='text' ref='description' placeholder='Description' / >
+    return <textarea id='task-description-form' className='form-control' type='text' placeholder='Description' / >
   }
 }
 
@@ -160,10 +178,11 @@ class Completed extends React.Component {
   render() {
     return (
       <div className='completed'>
-        <p> yo </p>
+
       </div>
     )
   }
 }
 
-ReactDOM.render( <TaskList / > , document.getElementById('root'));
+
+ReactDOM.render( <Root / > , document.getElementById('root'));
