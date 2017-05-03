@@ -43,4 +43,4 @@ def complete_task():
         data.completed -= 1
         db.session.commit()
 
-    return jsonify(data.to_dict())
+    return all_tasks()

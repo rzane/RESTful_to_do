@@ -45,10 +45,11 @@ class Root extends React.Component {
           return data.json()
         })
         .then((json) => {
+
           this.setState({
             childVisible: false,
             tasks: json.tasks,
-
+            value: ''
           })
 
       })
@@ -56,6 +57,7 @@ class Root extends React.Component {
   }
 
   removeTask(event) {
+    console.log(event)
     fetch('/task/', {
       method: 'DELETE',
       headers: {
@@ -65,11 +67,21 @@ class Root extends React.Component {
       body: JSON.stringify({
         id: event
       })
-    })
-    this.componentDidMount();
+    }).then((data) => {
+        return data.json()
+      })
+      .then((json) => {
+        console.log(json.tasks)
+        this.setState({
+          tasks: json.tasks
+        })
+      })
+
+
   }
 
   completeTask(event) {
+    console.log(event)
     fetch('/task/', {
       method: 'PUT',
       headers: {
@@ -79,12 +91,17 @@ class Root extends React.Component {
       body: JSON.stringify({
         id: event
       })
-    })
-    this.componentDidMount();
+    }).then((data) => {
+        return data.json()
+      })
+      .then((json) => {
+        console.log(json.tasks)
+        
+      })
+
   }
 
   onChange(event) {
-    console.log(this.state.value)
     var counter = document.getElementById('task-name-form').value
     if (counter.length > 0 ) {
       this.setState({
@@ -105,8 +122,8 @@ class Root extends React.Component {
           <div className='root-wrapper'>
             <TaskList
               tasks={this.state.tasks}
-              onCompleteTask={this.completeTask.bind(this)}
-              onDeleteTask={this.removeTask.bind(this)}
+              completeTask={this.completeTask.bind(this)}
+              removeTask={this.removeTask.bind(this)}
               addTask={this.addTask.bind(this)}
               onChange={this.onChange.bind(this)}
               childVisible={this.state.childVisible}
@@ -120,16 +137,17 @@ class Root extends React.Component {
     }
 
 }
+
 class TaskList extends React.Component {
 
   render() {
     return (
         <div className='task-wrapper'>
           <div className='wrapper-form'>
-            <Task_form onSubmit={this.props.addTask} onChange={this.props.onChange} childVisible={this.props.childVisible} />
+            <Task_form onSubmit={this.props.addTask} onChange={this.props.onChange} childVisible={this.props.childVisible} value={this.props.value} />
           </div>
           <div className='wrapper-list'>
-            <ul className='list' > {this.props.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id}  /> )} </ul>
+            <ul className='list' > {this.props.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onRemoveTask={this.props.removeTask.bind(this, task.id)} onCompleteTask={this.props.completeTask.bind(this, task.id)}  /> )} </ul>
           </div>
 
         </div>
@@ -146,8 +164,8 @@ class Task extends React.Component {
         <li className='task'>
           <ul className='nested-task-list'>
             <li className='nested-task-list-name'><p className='task-list-name'> {this.props.task}</p></li>
-            <li className='nested-task-list-complete'><span className='complete' onClick={this.props.completeTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
-            <li className='nested-task-list-button'><span className='remove' onClick={this.props.removeTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
+            <li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
+            <li className='nested-task-list-button'><span className='remove' onClick={this.props.onRemoveTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
           </ul>
         </li>
       </div>
