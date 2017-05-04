@@ -15,9 +15,11 @@ class Root extends React.Component {
   componentDidMount() {
     fetch('/task')
       .then((data) => {
+
         return data.json()
       })
       .then((json) => {
+        console.log(json.tasks)
         this.setState({
           tasks: json.tasks
         })
@@ -76,8 +78,6 @@ class Root extends React.Component {
           tasks: json.tasks
         })
       })
-
-
   }
 
   completeTask(event) {
@@ -95,8 +95,9 @@ class Root extends React.Component {
         return data.json()
       })
       .then((json) => {
-        console.log(json.tasks)
-        
+        this.setState({
+          tasks: json.tasks
+        })
       })
 
   }
@@ -120,7 +121,7 @@ class Root extends React.Component {
       if (this.state.tasks) {
         return (
           <div className='root-wrapper'>
-            <TaskList
+            <Todo
               tasks={this.state.tasks}
               completeTask={this.completeTask.bind(this)}
               removeTask={this.removeTask.bind(this)}
@@ -129,6 +130,7 @@ class Root extends React.Component {
               childVisible={this.state.childVisible}
               value={this.state.value}
             />
+            <Completed />
 
           </div>
         )
@@ -138,7 +140,7 @@ class Root extends React.Component {
 
 }
 
-class TaskList extends React.Component {
+class Todo extends React.Component {
 
   render() {
     return (
@@ -147,7 +149,13 @@ class TaskList extends React.Component {
             <Task_form onSubmit={this.props.addTask} onChange={this.props.onChange} childVisible={this.props.childVisible} value={this.props.value} />
           </div>
           <div className='wrapper-list'>
-            <ul className='list' > {this.props.tasks.map((task, i) => <Task key={i} task={task.name} id={task.id} onRemoveTask={this.props.removeTask.bind(this, task.id)} onCompleteTask={this.props.completeTask.bind(this, task.id)}  /> )} </ul>
+            <ul className='list' >
+              {this.props.tasks
+                .filter(task => task.completed === 0)
+                .map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteTask={this.props.completeTask.bind(this, task.id)} />)
+              }
+            </ul>
+
           </div>
 
         </div>
@@ -155,6 +163,35 @@ class TaskList extends React.Component {
   }
 
 }
+
+class Task_form extends React.Component {
+
+  render() {
+    return (
+      <form action="" onSubmit={this.props.onSubmit} >
+        <input type='text' value={this.props.value} name='task' id='task-name-form' placeholder="Task" onChange={this.props.onChange} className='form-control' autoComplete="off"  / > <br/>
+        {this.props.childVisible ? <Task_description />: null}
+      </form>
+    )
+  }
+}
+
+//class TaskList extends React.Component {
+
+  //render() {
+      //if (task.completed == 0) {
+        //return (
+          //<ul className='list' >
+           //{this.props.tasks.map((task, i) =>
+
+            //<Task key={i} task={task.name} id={task.id} onRemoveTask={this.props.removeTask.bind(this, task.id)} onCompleteTask={this.props.completeTask.bind(this, task.id)} /> )}
+
+          //</ul>
+        //)
+      //}
+    //})
+  //}
+//}
 
 class Task extends React.Component {
 
@@ -172,19 +209,6 @@ class Task extends React.Component {
     )
   }
 }
-
-class Task_form extends React.Component {
-
-  render() {
-    return (
-      <form action="" onSubmit={this.props.onSubmit} >
-        <input type='text' value={this.props.value} name='task' id='task-name-form' placeholder="Task" onChange={this.props.onChange} className='form-control' autoComplete="off"  / > <br/>
-        {this.props.childVisible ? <Task_description />: null}
-      </form>
-    )
-  }
-}
-
 
 class Task_description extends React.Component {
   render() {
