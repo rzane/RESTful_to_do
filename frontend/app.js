@@ -8,7 +8,8 @@ class Root extends React.Component {
     this.state = {
       tasks: null,
       value: '',
-      childVisible: false
+      childVisible: false,
+      completedState: 0
     };
   }
 
@@ -117,10 +118,22 @@ class Root extends React.Component {
     }
   }
 
+  onClick(event) {
+    this.setState({
+      completedState: 1
+    })
+  }
+
     render() {
-      if (this.state.tasks) {
+      if (this.state.tasks && this.state.completedState === 0) {
         return (
           <div className='root-wrapper'>
+            <CompletedTab
+              tasks={this.state.tasks}
+              completeTask={this.completeTask.bind(this)}
+              removeTask={this.removeTask.bind(this)}
+              completedState={this.state.completedState}
+            />
             <Todo
               tasks={this.state.tasks}
               completeTask={this.completeTask.bind(this)}
@@ -130,12 +143,26 @@ class Root extends React.Component {
               childVisible={this.state.childVisible}
               value={this.state.value}
             />
+          </div>
+        )
+      } else if (this.state.tasks && this.state.completedState === 1) {
+        return(
+          <div className='root-wrapper'>
             <Completed
               tasks={this.state.tasks}
               completeTask={this.completeTask.bind(this)}
               removeTask={this.removeTask.bind(this)}
-             />
-
+              completedState={this.state.completedState}
+            />
+            <Todo
+              tasks={this.state.tasks}
+              completeTask={this.completeTask.bind(this)}
+              removeTask={this.removeTask.bind(this)}
+              addTask={this.addTask.bind(this)}
+              onChange={this.onChange.bind(this)}
+              childVisible={this.state.childVisible}
+              value={this.state.value}
+            />
           </div>
         )
       }
@@ -166,6 +193,15 @@ class Todo extends React.Component {
     )
   }
 
+}
+
+class CompletedTab extends React.Component {
+  render() {
+    return (
+      <div className='completed-tab'>
+      </div>
+    )
+  }
 }
 
 class Completed extends React.Component {
