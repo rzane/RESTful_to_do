@@ -2,41 +2,33 @@ body {
   font-family: 'Muli', sans-serif;
 }
 
-.task-wrapper {
-  width: 90%;
-  margin: 0 auto;
+.root-wrapper {
   margin-top: 50px;
 }
 
-
-.wrapper-form {
+.task-wrapper {
   background-color: #f2f2f2;
+  width: 80%;
+  height: 650px;
   margin: 0 auto;
-  height: 200px;
-  width: 87%;
-  position: relative;
+  overflow: auto;
+  margin-bottom: 10px;
 }
 
-.wrapper-list {
-  background-color: #f2f2f2;
-  margin: 0 auto;
-  width: 87%;
-  position: relative;
+.wrapper-form {
+  margin-bottom: 3%;
+  height: 27%;
 }
 
 .completed {
   background-color: #e6e6e6;
-  width: 87%;
+  width: 80%;
   height: 175px;
-  margin-bottom: -150px;
-  margin-top: 1%;
-  float: right;
-  margin-right: 5.6%;
   border-radius: 0 2px 25px 0;
-}
-
-.completed:hover {
-  margin-right: 4%;
+  margin: 0 auto;
+  z-index: 10;
+  height: 650px;
+  overflow: auto;
 }
 
 #task-name-form {
@@ -54,18 +46,19 @@ body {
 
 .list {
   list-style-type: none;
+  width: 40%;
+  margin: 0 auto;
+  padding: 0;
 }
 
 .task {
-  background-color: #e6e6e6;
-  width: 60%;
+  background-color: #d9d9d9;
   height: 50px;
-  margin: 0 auto;
   margin-bottom: 12px;
 }
 
 .task:hover {
-  box-shadow: 4px 4px 2px -2px #a6a6a6;
+  box-shadow: 4px 4px 2px -2px #999999;
 }
 
 .nested-task-list {
@@ -109,18 +102,6 @@ body {
 .complete:hover {
   background-color: #00b359;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
 .loading {
   display: block;

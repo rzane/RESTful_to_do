@@ -130,7 +130,11 @@ class Root extends React.Component {
               childVisible={this.state.childVisible}
               value={this.state.value}
             />
-            <Completed />
+            <Completed
+              tasks={this.state.tasks}
+              completeTask={this.completeTask.bind(this)}
+              removeTask={this.removeTask.bind(this)}
+             />
 
           </div>
         )
@@ -152,7 +156,7 @@ class Todo extends React.Component {
             <ul className='list' >
               {this.props.tasks
                 .filter(task => task.completed === 0)
-                .map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteTask={this.props.completeTask.bind(this, task.id)} />)
+                .map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteTask={this.props.completeTask.bind(this, task.id)} onRemoveTask={this.props.removeTask.bind(this, task.id)} />)
               }
             </ul>
 
@@ -163,6 +167,22 @@ class Todo extends React.Component {
   }
 
 }
+
+class Completed extends React.Component {
+  render() {
+    return (
+      <div className='completed'>
+        <ul className='list' >
+          {this.props.tasks
+            .filter(task => task.completed === 1)
+            .map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteTask={this.props.completeTask.bind(this, task.id)} onRemoveTask={this.props.removeTask.bind(this, task.id)} />)
+          }
+        </ul>
+      </div>
+    )
+  }
+}
+
 
 class Task_form extends React.Component {
 
@@ -176,28 +196,10 @@ class Task_form extends React.Component {
   }
 }
 
-//class TaskList extends React.Component {
-
-  //render() {
-      //if (task.completed == 0) {
-        //return (
-          //<ul className='list' >
-           //{this.props.tasks.map((task, i) =>
-
-            //<Task key={i} task={task.name} id={task.id} onRemoveTask={this.props.removeTask.bind(this, task.id)} onCompleteTask={this.props.completeTask.bind(this, task.id)} /> )}
-
-          //</ul>
-        //)
-      //}
-    //})
-  //}
-//}
-
 class Task extends React.Component {
 
   render() {
     return (
-      <div>
         <li className='task'>
           <ul className='nested-task-list'>
             <li className='nested-task-list-name'><p className='task-list-name'> {this.props.task}</p></li>
@@ -205,7 +207,6 @@ class Task extends React.Component {
             <li className='nested-task-list-button'><span className='remove' onClick={this.props.onRemoveTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
           </ul>
         </li>
-      </div>
     )
   }
 }
@@ -215,16 +216,5 @@ class Task_description extends React.Component {
     return <textarea id='task-description-form' className='form-control' type='text' placeholder='Description' / >
   }
 }
-
-class Completed extends React.Component {
-  render() {
-    return (
-      <div className='completed'>
-
-      </div>
-    )
-  }
-}
-
 
 ReactDOM.render( <Root / > , document.getElementById('root'));
