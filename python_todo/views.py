@@ -12,14 +12,13 @@ def all_tasks():
 
 @app.route('/task/<int:task_id>', methods=['GET'])
 def get_task(task_id):
+
     data = Task.query.get_or_404(task_id)
     return jsonify(data.to_dict())
 
 @app.route('/task/', methods=['POST'])
 def create_task():
-    name = request.get_json().get('name')
-    print name
-    new_task = Task(name)
+    new_task = Task(request.get_json().get('name'), request.get_json().get('description'))
     db.session.add(new_task)
     db.session.commit()
     return all_tasks()
@@ -35,7 +34,6 @@ def delete_task():
 def complete_task():
 
     data = Task.query.get_or_404(request.get_json().get('id'))
-    print data
     if data.completed == 0:
         data.completed += 1
         db.session.commit()

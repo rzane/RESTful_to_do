@@ -18,7 +18,7 @@ body {
   overflow: auto;
   margin-bottom: 10px;
   position: absolute;
-  z-index: 1;
+  z-index: 5;
 }
 
 .wrapper-form {
@@ -32,8 +32,12 @@ body {
   height: 175px;
   border-radius: 0 2px 25px 0;
   margin: 0 auto;
+  left: 0;
+  right: 0;
   height: 650px;
   overflow: auto;
+  position: absolute;
+  z-index: 10;
 }
 
 .completed-tab {
@@ -47,6 +51,10 @@ body {
   z-index: 0;
 }
 
+.completed-header {
+  float: left;
+}
+
 .completed-tab:hover {
   right: 8.4%;
 }
@@ -54,7 +62,7 @@ body {
 #task-name-form {
   width: 40%;
   margin: 0 auto;
-  margin-bottom: 20px;
+  margin-bottom: 35px;
 }
 
 #task-description-form {
@@ -64,11 +72,21 @@ body {
   margin: 0 auto;
 }
 
+.submit-bar {
+  background-color: green;
+  height: 50px;
+  width: 100px;
+}
+
 .list {
   list-style-type: none;
   width: 40%;
   margin: 0 auto;
   padding: 0;
+}
+
+.completed-list {
+  margin-top: 115px;
 }
 
 .task {
@@ -79,6 +97,18 @@ body {
 
 .task:hover {
   box-shadow: 4px 4px 2px -2px #999999;
+}
+
+.focused-task {
+  background-color: blue;
+  height: 200px;
+  width: 40%;
+  height: 400px;
+  
+}
+
+.focused-task p {
+  color: white;
 }
 
 .nested-task-list {

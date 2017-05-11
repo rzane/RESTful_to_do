@@ -7,8 +7,11 @@ class Root extends React.Component {
 
     this.state = {
       tasks: null,
-      value: '',
+      taskName: '',
+      taskDescription: '',
       childVisible: false,
+      submitBar: false,
+      taskFocus: 0,
       completedState: 0
     };
   }
@@ -16,11 +19,9 @@ class Root extends React.Component {
   componentDidMount() {
     fetch('/task')
       .then((data) => {
-
         return data.json()
       })
       .then((json) => {
-        console.log(json.tasks)
         this.setState({
           tasks: json.tasks
         })
@@ -29,8 +30,8 @@ class Root extends React.Component {
 
   addTask(event) {
     event.preventDefault();
-    var name = this.state.value
-    console.log(name)
+    var name = this.state.taskName
+    var description = this.state.taskDescription
     if (name == '') {
       alert('you must write something')
     } else {
@@ -42,7 +43,8 @@ class Root extends React.Component {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          name: name
+          name: name,
+          description: description
         })
       }).then((data) => {
           return data.json()
@@ -52,7 +54,8 @@ class Root extends React.Component {
           this.setState({
             childVisible: false,
             tasks: json.tasks,
-            value: ''
+            taskName: '',
+            taskDescription: ''
           })
 
       })
@@ -60,7 +63,6 @@ class Root extends React.Component {
   }
 
   removeTask(event) {
-    console.log(event)
     fetch('/task/', {
       method: 'DELETE',
       headers: {
@@ -74,7 +76,6 @@ class Root extends React.Component {
         return data.json()
       })
       .then((json) => {
-        console.log(json.tasks)
         this.setState({
           tasks: json.tasks
         })
@@ -100,28 +101,71 @@ class Root extends React.Component {
           tasks: json.tasks
         })
       })
-
   }
 
-  onChange(event) {
-    var counter = document.getElementById('task-name-form').value
-    if (counter.length > 0 ) {
+  focusOnTask(event) {
+    console.log('/task/' + event)
+    if (this.state.taskFocus === 0) {
+      fetch('/task/' + event)
+       .then((data) => {
+        return data.json()
+      }).then((json) => {
+        console.log(json.description)
+      })
       this.setState({
-        childVisible: true,
-        value: event.target.value
-      });
-    } else {
+        taskFocus: 1
+      })
+    } else if (this.state.taskFocus === 1) {
       this.setState({
-        childVisible: false,
-        value: event.target.value
-      });
+        taskFocus: 0
+      })
     }
   }
 
-  onClick(event) {
+  onTaskChange(event) {
     this.setState({
-      completedState: 1
-    })
+      taskName: event.target.value,
+    });
+    if (event.target.value.length > 0) {
+      this.setState({
+        childVisible: true
+      })
+    } else {
+      this.setState({
+        submitBar: false,
+        childVisible: false,
+        taskDescription: ''
+      })
+    }
+  }
+
+  onDesciptionChange(event) {
+    this.setState({
+      taskDescription: event.target.value
+    });
+    if (event.target.value.length > 0) {
+      this.setState({
+        submitBar: true
+      })
+    } else {
+
+      this.setState({
+        submitBar: false,
+
+      })
+    }
+  }
+
+  changeTab(event) {
+    if (this.state.completedState === 1) {
+      this.setState({
+        completedState: 0
+      })
+    } else if (this.state.completedState === 0) {
+      this.setState({
+        completedState: 1
+      })
+    }
   }
 
     render() {
@@ -133,15 +177,23 @@ class Root extends React.Component {
               completeTask={this.completeTask.bind(this)}
               removeTask={this.removeTask.bind(this)}
               completedState={this.state.completedState}
+              changeTab={this.changeTab.bind(this)}
+              focusOnTask={this.focusOnTask.bind(this)}
+              taskFocus={this.state.taskFocus}
             />
             <Todo
               tasks={this.state.tasks}
               completeTask={this.completeTask.bind(this)}
               removeTask={this.removeTask.bind(this)}
               addTask={this.addTask.bind(this)}
-              onChange={this.onChange.bind(this)}
+              onTaskChange={this.onTaskChange.bind(this)}
+              onDesciptionChange={this.onDesciptionChange.bind(this)}
               childVisible={this.state.childVisible}
-              value={this.state.value}
+              taskName={this.state.taskName}
+              taskDescription={this.state.taskDescription}
+              submitBar={this.state.submitBar}
+              focusOnTask={this.focusOnTask.bind(this)}
+              taskFocus={this.state.taskFocus}
             />
           </div>
         )
@@ -153,15 +205,23 @@ class Root extends React.Component {
               completeTask={this.completeTask.bind(this)}
               removeTask={this.removeTask.bind(this)}
               completedState={this.state.completedState}
+              changeTab={this.changeTab.bind(this)}
+              focusOnTask={this.focusOnTask.bind(this)}
+              tsakFocus={this.state.taskFocus}
             />
             <Todo
               tasks={this.state.tasks}
               completeTask={this.completeTask.bind(this)}
               removeTask={this.removeTask.bind(this)}
               addTask={this.addTask.bind(this)}
-              onChange={this.onChange.bind(this)}
+              onTaskChange={this.onTaskChange.bind(this)}
+              onDesciptionChange={this.onDesciptionChange.bind(this)}
               childVisible={this.state.childVisible}
-              value={this.state.value}
+              taskName={this.state.taskName}
+              taskDescription={this.state.taskDescription}
+              submitBar={this.state.submitBar}
+              focusOnTask={this.focusOnTask.bind(this)}
+              taskFocus={this.state.taskFocus}
             />
           </div>
         )
@@ -175,30 +235,169 @@ class Todo extends React.Component {
 
   render() {
     return (
-        <div className='task-wrapper'>
-          <div className='wrapper-form'>
-            <Task_form onSubmit={this.props.addTask} onChange={this.props.onChange} childVisible={this.props.childVisible} value={this.props.value} />
-          </div>
-          <div className='wrapper-list'>
-            <ul className='list' >
-              {this.props.tasks
-                .filter(task => task.completed === 0)
-                .map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteTask={this.props.completeTask.bind(this, task.id)} onRemoveTask={this.props.removeTask.bind(this, task.id)} />)
-              }
-            </ul>
-
-          </div>
-
+      <div className='task-wrapper'>
+        <div className='wrapper-form'>
+          <Task_form
+            submitBar={this.props.submitBar}
+            onSubmit={this.props.addTask}
+            onTaskChange={this.props.onTaskChange}
+            onDesciptionChange={this.props.onDesciptionChange}
+            childVisible={this.props.childVisible}
+            taskName={this.props.taskName}
+            taskDescription={this.props.taskDescription}
+          />
         </div>
+        <div className='wrapper-list'>
+          <Task_list
+            tasks={this.props.tasks}
+            taskFocus={this.props.taskFocus}
+            focusOnTask={this.props.focusOnTask}
+            completeTask={this.props.completeTask}
+            removeTask={this.props.removeTask}
+          />
+        </div>
+      </div>
     )
   }
+}
 
+class Task_list extends React.Component {
+
+  render() {
+    if (this.props.taskFocus === 0) {
+      return(
+        <ul className='list' >
+          {this.props.tasks
+            .filter(task => task.completed === 0)
+            .map((task, i) =>
+              <Task
+                key={i}
+                task={task.name}
+                description={task.description}
+                id={task.id}
+                onSelect={this.props.focusOnTask.bind(this, task.id)}
+                taskFocus={this.props.taskFocus}
+                onCompleteTask={this.props.completeTask.bind(this, task.id)}
+                onRemoveTask={this.props.removeTask.bind(this, task.id)}
+                focusOnTask={this.props.focusOnTask}
+              />)
+          }
+        </ul>
+      )
+    } else if (this.props.taskFocus === 1) {
+      return(
+        <div>
+          <ul className='list'>
+            {this.props.tasks
+              .filter(task => task.completed === 0)
+              .map((task, i) =>
+                <Task
+                  key={i}
+                  task={task.name}
+                  description={task.description}
+                  id={task.id}
+                  onSelect={this.props.focusOnTask.bind(this, task.id)}
+                  taskFocus={this.props.taskFocus}
+                  onCompleteTask={this.props.completeTask.bind(this, task.id)}
+                  onRemoveTask={this.props.removeTask.bind(this, task.id)}
+                  focusOnTask={this.props.focusOnTask}
+                />)
+            }
+          </ul>
+          <div className='fuckyou'>
+            <Focused_task onSelect={this.props.focusOnTask} tasks={this.props.tasks} />
+          </div>
+        <div>
+      )
+    }
+  }
+}
+
+
+class Task extends React.Component {
+
+  render() {
+      return (
+        <div>
+          <li className='task' onClick={this.props.onSelect} >
+
+              <span className='nested-task-list-name'><p className='task-list-name'> {this.props.task} </p></span>
+
+          </li>
+
+          <li className='nested-task-list-button'><span className='remove' onClick={this.props.onRemoveTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
+
+          <li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
+        </div>
+      )
+    }
+}
+
+class Focused_task extends React.Component {
+  render() {
+    return (
+      <div className='focused-task' onClick={this.props.onSelect}>
+        <p> yo </p>
+      </div>
+    )
+  }
+}
+
+class Task_form extends React.Component {
+
+  render() {
+    return (
+      <div>
+        <form action="" onSubmit={this.props.onSubmit} >
+          <input type='text' value={this.props.taskName} onChange={this.props.onTaskChange} name='value' id='task-name-form' placeholder="Task" className='form-control' autoComplete="off"  / > <br/>
+          </form>
+        <form action="" onSubmit={this.props.onSubmit} >
+          {this.props.childVisible ?
+            <Task_description
+              submitBar={this.props.submitBar}
+              taskDescription={this.props.taskDescription}
+              onDesciptionChange={this.props.onDesciptionChange}
+
+            />: null}
+        </form>
+      </div>
+    )
+  }
+}
+
+class Task_description extends React.Component {
+  render() {
+    return (
+      <div>
+        <textarea
+          value={this.props.taskDescription}
+          onChange={this.props.onDesciptionChange}
+          name='description'
+          id='task-description-form'
+          className='form-control'
+          type='text'
+          placeholder='Description'
+        />
+        {this.props.submitBar ? <Submit_bar />:null}
+      </div>
+    )
+  }
+}
+
+class Submit_bar extends React.Component {
+  render() {
+    return (
+      <button className='submit-bar'>
+        <p> yo </p>
+      </button>
+    )
+  }
 }
 
 class CompletedTab extends React.Component {
   render() {
     return (
-      <div className='completed-tab'>
+      <div className='completed-tab' onClick={this.props.changeTab}>
       </div>
     )
   }
@@ -208,10 +407,20 @@ class Completed extends React.Component {
   render() {
     return (
       <div className='completed'>
-        <ul className='list' >
+        <h1 className='completed-header'>Completed Tasks </h1>
+        <span className='remove' onClick={this.props.changeTab}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span>
+        <ul className='list completed-list' >
           {this.props.tasks
             .filter(task => task.completed === 1)
-            .map((task, i) => <Task key={i} task={task.name} id={task.id} onCompleteTask={this.props.completeTask.bind(this, task.id)} onRemoveTask={this.props.removeTask.bind(this, task.id)} />)
+            .map((task, i) =>
+            <Task
+              key={i}
+              task={task.name}
+              id={task.id}
+              onSelect={this.props.focusOnTask.bind(this, task.id)}
+              onCompleteTask={this.props.completeTask.bind(this, task.id)}
+              onRemoveTask={this.props.removeTask.bind(this, task.id)}
+            />)
           }
         </ul>
       </div>
@@ -220,37 +429,5 @@ class Completed extends React.Component {
 }
 
 
-class Task_form extends React.Component {
-
-  render() {
-    return (
-      <form action="" onSubmit={this.props.onSubmit} >
-        <input type='text' value={this.props.value} name='task' id='task-name-form' placeholder="Task" onChange={this.props.onChange} className='form-control' autoComplete="off"  / > <br/>
-        {this.props.childVisible ? <Task_description />: null}
-      </form>
-    )
-  }
-}
-
-class Task extends React.Component {
-
-  render() {
-    return (
-        <li className='task'>
-          <ul className='nested-task-list'>
-            <li className='nested-task-list-name'><p className='task-list-name'> {this.props.task}</p></li>
-            <li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
-            <li className='nested-task-list-button'><span className='remove' onClick={this.props.onRemoveTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
-          </ul>
-        </li>
-    )
-  }
-}
-
-class Task_description extends React.Component {
-  render() {
-    return <textarea id='task-description-form' className='form-control' type='text' placeholder='Description' / >
-  }
-}
 
 ReactDOM.render( <Root / > , document.getElementById('root'));
