@@ -11,7 +11,6 @@ class Root extends React.Component {
       taskDescription: '',
       childVisible: false,
       submitBar: false,
-      taskFocus: 0,
       completedState: 0
     };
   }
@@ -55,7 +54,8 @@ class Root extends React.Component {
             childVisible: false,
             tasks: json.tasks,
             taskName: '',
-            taskDescription: ''
+            taskDescription: '',
+            submitBar: false
           })
 
       })
@@ -101,25 +101,6 @@ class Root extends React.Component {
           tasks: json.tasks
         })
       })
-  }
-
-  focusOnTask(event) {
-    console.log('/task/' + event)
-    if (this.state.taskFocus === 0) {
-      fetch('/task/' + event)
-       .then((data) => {
-        return data.json()
-      }).then((json) => {
-        console.log(json.description)
-      })
-      this.setState({
-        taskFocus: 1
-      })
-    } else if (this.state.taskFocus === 1) {
-      this.setState({
-        taskFocus: 0
-      })
-    }
   }
 
   onTaskChange(event) {
@@ -178,8 +159,7 @@ class Root extends React.Component {
               removeTask={this.removeTask.bind(this)}
               completedState={this.state.completedState}
               changeTab={this.changeTab.bind(this)}
-              focusOnTask={this.focusOnTask.bind(this)}
-              taskFocus={this.state.taskFocus}
+
             />
             <Todo
               tasks={this.state.tasks}
@@ -192,8 +172,7 @@ class Root extends React.Component {
               taskName={this.state.taskName}
               taskDescription={this.state.taskDescription}
               submitBar={this.state.submitBar}
-              focusOnTask={this.focusOnTask.bind(this)}
-              taskFocus={this.state.taskFocus}
+
             />
           </div>
         )
@@ -206,8 +185,7 @@ class Root extends React.Component {
               removeTask={this.removeTask.bind(this)}
               completedState={this.state.completedState}
               changeTab={this.changeTab.bind(this)}
-              focusOnTask={this.focusOnTask.bind(this)}
-              tsakFocus={this.state.taskFocus}
+              completedState={this.state.completedState}
             />
             <Todo
               tasks={this.state.tasks}
@@ -220,8 +198,7 @@ class Root extends React.Component {
               taskName={this.state.taskName}
               taskDescription={this.state.taskDescription}
               submitBar={this.state.submitBar}
-              focusOnTask={this.focusOnTask.bind(this)}
-              taskFocus={this.state.taskFocus}
+              completedState={this.state.completedState}
             />
           </div>
         )
@@ -250,10 +227,9 @@ class Todo extends React.Component {
         <div className='wrapper-list'>
           <Task_list
             tasks={this.props.tasks}
-            taskFocus={this.props.taskFocus}
-            focusOnTask={this.props.focusOnTask}
             completeTask={this.props.completeTask}
             removeTask={this.props.removeTask}
+            completedState={this.props.completedState}
           />
         </div>
       </div>
@@ -262,32 +238,41 @@ class Todo extends React.Component {
 }
 
 class Task_list extends React.Component {
+  constructor() {
+    super()
+
+    this.state = {
+      taskFocus: 0,
+      name: null,
+      description: null
+    }
+  }
+
+  focusOnTask(event) {
+    console.log('/task/' + event)
+    if (this.state.taskFocus === 0) {
+      fetch('/task/' + event)
+       .then((data) => {
+        return data.json()
+      }).then((json) => {
+        this.setState({
+          taskFocus: 1,
+          name: json.name,
+          description: json.description
+        })
+      })
+
+    } else if (this.state.taskFocus === 1) {
+      this.setState({
+        taskFocus: 0
+      })
+    }
+  }
 
   render() {
-    if (this.props.taskFocus === 0) {
-      return(
-        <ul className='list' >
-          {this.props.tasks
-            .filter(task => task.completed === 0)
-            .map((task, i) =>
-              <Task
-                key={i}
-                task={task.name}
-                description={task.description}
-                id={task.id}
-                onSelect={this.props.focusOnTask.bind(this, task.id)}
-                taskFocus={this.props.taskFocus}
-                onCompleteTask={this.props.completeTask.bind(this, task.id)}
-                onRemoveTask={this.props.removeTask.bind(this, task.id)}
-                focusOnTask={this.props.focusOnTask}
-              />)
-          }
-        </ul>
-      )
-    } else if (this.props.taskFocus === 1) {
-      return(
-        <div>
-          <ul className='list'>
+      if (this.state.taskFocus === 0) {
+        return(
+          <ul className='list' >
             {this.props.tasks
               .filter(task => task.completed === 0)
               .map((task, i) =>
@@ -296,20 +281,39 @@ class Task_list extends React.Component {
                   task={task.name}
                   description={task.description}
                   id={task.id}
-                  onSelect={this.props.focusOnTask.bind(this, task.id)}
-                  taskFocus={this.props.taskFocus}
+                  taskFocus={this.state.taskFocus}
                   onCompleteTask={this.props.completeTask.bind(this, task.id)}
                   onRemoveTask={this.props.removeTask.bind(this, task.id)}
-                  focusOnTask={this.props.focusOnTask}
+                  onSelect={this.focusOnTask.bind(this, task.id)}
                 />)
             }
           </ul>
-          <div className='fuckyou'>
-            <Focused_task onSelect={this.props.focusOnTask} tasks={this.props.tasks} />
+        )
+      } else if (this.state.taskFocus === 1) {
+        return(
+          <div>
+            <ul className='list' >
+              {this.props.tasks
+                .filter(task => task.completed === 0)
+                .map((task, i) =>
+                  <Task
+                    key={i}
+                    task={task.name}
+                    description={task.description}
+                    id={task.id}
+                    taskFocus={this.state.taskFocus}
+                    onCompleteTask={this.props.completeTask.bind(this, task.id)}
+                    onRemoveTask={this.props.removeTask.bind(this, task.id)}
+                    onSelect={this.focusOnTask.bind(this, task.id)}
+                  />)
+              }
+            </ul>
+            <div>
+              <Focused_task onSelect={this.focusOnTask.bind(this)} taskFocus={this.state.taskFocus} name={this.state.name} description={this.state.description} />
+            </div>
           </div>
-        <div>
-      )
-    }
+        )
+      }
   }
 }
 
@@ -337,7 +341,8 @@ class Focused_task extends React.Component {
   render() {
     return (
       <div className='focused-task' onClick={this.props.onSelect}>
-        <p> yo </p>
+        <p> {this.props.name} </p>
+        <p> {this.props.description} </p>
       </div>
     )
   }
@@ -409,24 +414,97 @@ class Completed extends React.Component {
       <div className='completed'>
         <h1 className='completed-header'>Completed Tasks </h1>
         <span className='remove' onClick={this.props.changeTab}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span>
-        <ul className='list completed-list' >
-          {this.props.tasks
-            .filter(task => task.completed === 1)
-            .map((task, i) =>
-            <Task
-              key={i}
-              task={task.name}
-              id={task.id}
-              onSelect={this.props.focusOnTask.bind(this, task.id)}
-              onCompleteTask={this.props.completeTask.bind(this, task.id)}
-              onRemoveTask={this.props.removeTask.bind(this, task.id)}
-            />)
-          }
-        </ul>
+        <Completed_task_list
+          tasks={this.props.tasks}
+          completeTask={this.props.completeTask}
+          removeTask={this.props.removeTask}
+          completedState={this.props.completedState}
+        />
       </div>
     )
   }
 }
+
+class Completed_task_list extends React.Component {
+  constructor() {
+    super()
+
+    this.state = {
+      taskFocus: 0,
+      name: null,
+      description: null
+    }
+  }
+
+  focusOnTask(event) {
+    console.log('/task/' + event)
+    if (this.state.taskFocus === 0) {
+      fetch('/task/' + event)
+       .then((data) => {
+        return data.json()
+      }).then((json) => {
+        this.setState({
+          taskFocus: 1,
+          name: json.name,
+          description: json.description
+        })
+      })
+
+    } else if (this.state.taskFocus === 1) {
+      this.setState({
+        taskFocus: 0
+      })
+    }
+  }
+
+  render() {
+      if (this.state.taskFocus === 0) {
+        return(
+          <ul className='list' >
+            {this.props.tasks
+              .filter(task => task.completed === 1)
+              .map((task, i) =>
+                <Task
+                  key={i}
+                  task={task.name}
+                  description={task.description}
+                  id={task.id}
+                  taskFocus={this.state.taskFocus}
+                  onCompleteTask={this.props.completeTask.bind(this, task.id)}
+                  onRemoveTask={this.props.removeTask.bind(this, task.id)}
+                  onSelect={this.focusOnTask.bind(this, task.id)}
+                />)
+            }
+          </ul>
+        )
+      } else if (this.state.taskFocus === 1) {
+        return(
+          <div>
+            <ul className='list' >
+              {this.props.tasks
+                .filter(task => task.completed === 1)
+                .map((task, i) =>
+                  <Task
+                    key={i}
+                    task={task.name}
+                    description={task.description}
+                    id={task.id}
+                    taskFocus={this.state.taskFocus}
+                    onCompleteTask={this.props.completeTask.bind(this, task.id)}
+                    onRemoveTask={this.props.removeTask.bind(this, task.id)}
+                    onSelect={this.focusOnTask.bind(this, task.id)}
+                  />)
+              }
+            </ul>
+            <div>
+              <Focused_task onSelect={this.focusOnTask.bind(this)} taskFocus={this.state.taskFocus} name={this.state.name} description={this.state.description} />
+            </div>
+          </div>
+        )
+      }
+  }
+}
+
 
 
 

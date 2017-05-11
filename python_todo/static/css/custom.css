@@ -62,7 +62,8 @@ body {
 #task-name-form {
   width: 40%;
   margin: 0 auto;
-  margin-bottom: 35px;
+  margin-bottom: 20px;
+  margin-top: 15px;
 }
 
 #task-description-form {
@@ -74,8 +75,11 @@ body {
 
 .submit-bar {
   background-color: green;
-  height: 50px;
-  width: 100px;
+  height: 40px;
+  margin: 0 auto;
+  margin-top: 10px;
+
+  width: 40%;
 }
 
 .list {
@@ -101,10 +105,15 @@ body {
 
 .focused-task {
   background-color: blue;
-  height: 200px;
-  width: 40%;
-  height: 400px;
-  
+  width: 50%;
+  height: 350px;
+  position: absolute;
+  z-index: 10;
+  margin: 0 auto;
+  left: 0;
+  right: 0;
+  bottom: 50%;
+  top: 25%;
 }
 
 .focused-task p {
