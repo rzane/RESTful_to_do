@@ -258,7 +258,8 @@ class Task_list extends React.Component {
         this.setState({
           taskFocus: 1,
           name: json.name,
-          description: json.description
+          description: json.description,
+          id: json.id
         })
       })
 
@@ -309,7 +310,7 @@ class Task_list extends React.Component {
               }
             </ul>
             <div>
-              <Focused_task onSelect={this.focusOnTask.bind(this)} taskFocus={this.state.taskFocus} name={this.state.name} description={this.state.description} />
+              <Focused_task onSelect={this.focusOnTask.bind(this)} taskFocus={this.state.taskFocus} name={this.state.name} description={this.state.description} id={this.state.id} onCompleteTask={this.props.completeTask.bind(this, this.state.id)} />
             </div>
           </div>
         )
@@ -317,22 +318,15 @@ class Task_list extends React.Component {
   }
 }
 
-
 class Task extends React.Component {
 
   render() {
       return (
-        <div>
-          <li className='task' onClick={this.props.onSelect} >
-
-              <span className='nested-task-list-name'><p className='task-list-name'> {this.props.task} </p></span>
-
-          </li>
-
-          <li className='nested-task-list-button'><span className='remove' onClick={this.props.onRemoveTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li>
-
-          <li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li>
-        </div>
+          <div className='task' >
+                <div><li><span className='nested-task-list-name' onClick={this.props.onSelect}><p className='task-list-name'> {this.props.task} </p></span></li></div>
+                <div><li className='nested-task-list-button'><span className='remove' onClick={this.props.onRemoveTask}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span></li></div>
+                <div><li className='nested-task-list-complete'><span className='complete' onClick={this.props.onCompleteTask}><span className='glyphicon glyphicon-ok glyphicon-large'></span></span></li></div>
+          </div>
       )
     }
 }
@@ -340,9 +334,12 @@ class Task extends React.Component {
 class Focused_task extends React.Component {
   render() {
     return (
-      <div className='focused-task' onClick={this.props.onSelect}>
-        <p> {this.props.name} </p>
-        <p> {this.props.description} </p>
+      <div className='focused-task' id={this.props.id}>
+        <div className='focused-task-name'><p> {this.props.name} </p></div>
+        <div className='focused-task-description'><p> {this.props.description} </p></div>
+        <div className='focused-task-bottom-menu'>
+          <span className='remove focused-task-remove' onClick={this.props.onSelect}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span>
+        </div>
       </div>
     )
   }
@@ -354,7 +351,7 @@ class Task_form extends React.Component {
     return (
       <div>
         <form action="" onSubmit={this.props.onSubmit} >
-          <input type='text' value={this.props.taskName} onChange={this.props.onTaskChange} name='value' id='task-name-form' placeholder="Task" className='form-control' autoComplete="off"  / > <br/>
+          <input type='text' value={this.props.taskName} onChange={this.props.onTaskChange} name='value' id='task-name-form' placeholder="Task" className='form-control' autoComplete="off"  / >
           </form>
         <form action="" onSubmit={this.props.onSubmit} >
           {this.props.childVisible ?
@@ -392,9 +389,11 @@ class Task_description extends React.Component {
 class Submit_bar extends React.Component {
   render() {
     return (
-      <button className='submit-bar'>
-        <p> yo </p>
-      </button>
+      <div className='submit-bar-wrapper'>
+        <button className='submit-bar btn btn-default'>
+          Submit
+          </button>
+      </div>
     )
   }
 }
@@ -413,7 +412,7 @@ class Completed extends React.Component {
     return (
       <div className='completed'>
         <h1 className='completed-header'>Completed Tasks </h1>
-        <span className='remove' onClick={this.props.changeTab}><span className='glyphicon glyphicon-remove glyphicon-large'></span></span>
+        <span className='remove' onClick={this.props.changeTab}><span className=' exit glyphicon glyphicon-remove glyphicon-large'></span></span>  
         <Completed_task_list
           tasks={this.props.tasks}
           completeTask={this.props.completeTask}
@@ -460,7 +459,7 @@ class Completed_task_list extends React.Component {
   render() {
       if (this.state.taskFocus === 0) {
         return(
-          <ul className='list' >
+          <ul className='completed-list' >
             {this.props.tasks
               .filter(task => task.completed === 1)
               .map((task, i) =>
@@ -480,7 +479,7 @@ class Completed_task_list extends React.Component {
       } else if (this.state.taskFocus === 1) {
         return(
           <div>
-            <ul className='list' >
+            <ul className='completed-list' >
               {this.props.tasks
                 .filter(task => task.completed === 1)
                 .map((task, i) =>
